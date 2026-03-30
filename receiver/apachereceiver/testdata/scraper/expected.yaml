@@ -9,6 +9,13 @@ resourceMetrics:
             stringValue: "8080"
     scopeMetrics:
       - metrics:
+          - description: The average number of bytes served per second since the server was started.
+            gauge:
+              dataPoints:
+                - asDouble: 5765.43
+                  timeUnixNano: "1000000"
+            name: apache.bytes_per_sec
+            unit: By/s
           - description: The number of connections in different asynchronous states reported by Apache's server-status.
             gauge:
               dataPoints:
@@ -129,6 +136,13 @@ resourceMetrics:
                   timeUnixNano: "1000000"
               isMonotonic: true
             unit: '{requests}'
+          - description: The average number of requests served per second since the server was started.
+            gauge:
+              dataPoints:
+                - asDouble: 2.94
+                  timeUnixNano: "1000000"
+            name: apache.requests_per_sec
+            unit: "{requests}/s"
           - description: The number of workers in each state.
             name: apache.scoreboard
             sum:
@@ -236,6 +250,13 @@ resourceMetrics:
                       value:
                         stringValue: idle
                   timeUnixNano: "1000000"
+            unit: '{workers}'
+          - description: The maximum number of worker slots available on the server, derived from the length of the scoreboard.
+            gauge:
+              dataPoints:
+                - asInt: "400"
+                  timeUnixNano: "1000000"
+            name: apache.workers.max
             unit: '{workers}'
         scope:
           name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/apachereceiver
