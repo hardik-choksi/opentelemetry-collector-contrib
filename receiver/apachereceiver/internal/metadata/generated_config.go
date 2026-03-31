@@ -374,6 +374,26 @@ func (ms *ApacheUptimeMetricConfig) Unmarshal(parser *confmap.Conf) error {
 	return nil
 }
 
+// ApacheWorkerLimitMetricConfig provides config for the apache.worker.limit metric.
+type ApacheWorkerLimitMetricConfig struct {
+	Enabled          bool `mapstructure:"enabled"`
+	enabledSetByUser bool
+}
+
+func (ms *ApacheWorkerLimitMetricConfig) Unmarshal(parser *confmap.Conf) error {
+	if parser == nil {
+		return nil
+	}
+
+	err := parser.Unmarshal(ms)
+	if err != nil {
+		return err
+	}
+
+	ms.enabledSetByUser = parser.IsSet("enabled")
+	return nil
+}
+
 // ApacheWorkersMetricAttributeKey specifies the key of an attribute for the apache.workers metric.
 type ApacheWorkersMetricAttributeKey string
 
@@ -422,26 +442,6 @@ func (ms *ApacheWorkersMetricConfig) Validate() error {
 	return nil
 }
 
-// ApacheWorkersMaxMetricConfig provides config for the apache.workers.max metric.
-type ApacheWorkersMaxMetricConfig struct {
-	Enabled          bool `mapstructure:"enabled"`
-	enabledSetByUser bool
-}
-
-func (ms *ApacheWorkersMaxMetricConfig) Unmarshal(parser *confmap.Conf) error {
-	if parser == nil {
-		return nil
-	}
-
-	err := parser.Unmarshal(ms)
-	if err != nil {
-		return err
-	}
-
-	ms.enabledSetByUser = parser.IsSet("enabled")
-	return nil
-}
-
 // MetricsConfig provides config for apache metrics.
 type MetricsConfig struct {
 	ApacheBytesPerSec        ApacheBytesPerSecMetricConfig        `mapstructure:"apache.bytes_per_sec"`
@@ -458,8 +458,8 @@ type MetricsConfig struct {
 	ApacheScoreboard         ApacheScoreboardMetricConfig         `mapstructure:"apache.scoreboard"`
 	ApacheTraffic            ApacheTrafficMetricConfig            `mapstructure:"apache.traffic"`
 	ApacheUptime             ApacheUptimeMetricConfig             `mapstructure:"apache.uptime"`
+	ApacheWorkerLimit        ApacheWorkerLimitMetricConfig        `mapstructure:"apache.worker.limit"`
 	ApacheWorkers            ApacheWorkersMetricConfig            `mapstructure:"apache.workers"`
-	ApacheWorkersMax         ApacheWorkersMaxMetricConfig         `mapstructure:"apache.workers.max"`
 }
 
 func DefaultMetricsConfig() MetricsConfig {
@@ -512,13 +512,13 @@ func DefaultMetricsConfig() MetricsConfig {
 		ApacheUptime: ApacheUptimeMetricConfig{
 			Enabled: true,
 		},
+		ApacheWorkerLimit: ApacheWorkerLimitMetricConfig{
+			Enabled: true,
+		},
 		ApacheWorkers: ApacheWorkersMetricConfig{
 			Enabled:             true,
 			AggregationStrategy: AggregationStrategySum,
 			EnabledAttributes:   []ApacheWorkersMetricAttributeKey{ApacheWorkersMetricAttributeKeyWorkersState},
-		},
-		ApacheWorkersMax: ApacheWorkersMaxMetricConfig{
-			Enabled: true,
 		},
 	}
 }

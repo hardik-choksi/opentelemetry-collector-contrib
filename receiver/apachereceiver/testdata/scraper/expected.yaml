@@ -233,6 +233,13 @@ resourceMetrics:
                   timeUnixNano: "1000000"
               isMonotonic: true
             unit: s
+          - description: The maximum number of worker slots available on the server, derived from the length of the scoreboard.
+            gauge:
+              dataPoints:
+                - asInt: "400"
+                  timeUnixNano: "1000000"
+            name: apache.worker.limit
+            unit: '{workers}'
           - description: The number of workers currently attached to the HTTP server.
             name: apache.workers
             sum:
@@ -250,13 +257,6 @@ resourceMetrics:
                       value:
                         stringValue: idle
                   timeUnixNano: "1000000"
-            unit: '{workers}'
-          - description: The maximum number of worker slots available on the server, derived from the length of the scoreboard.
-            gauge:
-              dataPoints:
-                - asInt: "400"
-                  timeUnixNano: "1000000"
-            name: apache.workers.max
             unit: '{workers}'
         scope:
           name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/apachereceiver

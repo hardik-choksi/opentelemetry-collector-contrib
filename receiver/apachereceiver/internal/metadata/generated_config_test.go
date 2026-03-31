@@ -74,13 +74,13 @@ func TestMetricsBuilderConfig(t *testing.T) {
 					ApacheUptime: ApacheUptimeMetricConfig{
 						Enabled: true,
 					},
+					ApacheWorkerLimit: ApacheWorkerLimitMetricConfig{
+						Enabled: true,
+					},
 					ApacheWorkers: ApacheWorkersMetricConfig{
 						Enabled:             true,
 						AggregationStrategy: AggregationStrategySum,
 						EnabledAttributes:   []ApacheWorkersMetricAttributeKey{ApacheWorkersMetricAttributeKeyWorkersState},
-					},
-					ApacheWorkersMax: ApacheWorkersMaxMetricConfig{
-						Enabled: true,
 					},
 				},
 				ResourceAttributes: ResourceAttributesConfig{
@@ -141,13 +141,13 @@ func TestMetricsBuilderConfig(t *testing.T) {
 					ApacheUptime: ApacheUptimeMetricConfig{
 						Enabled: false,
 					},
+					ApacheWorkerLimit: ApacheWorkerLimitMetricConfig{
+						Enabled: false,
+					},
 					ApacheWorkers: ApacheWorkersMetricConfig{
 						Enabled:             false,
 						AggregationStrategy: AggregationStrategySum,
 						EnabledAttributes:   []ApacheWorkersMetricAttributeKey{ApacheWorkersMetricAttributeKeyWorkersState},
-					},
-					ApacheWorkersMax: ApacheWorkersMaxMetricConfig{
-						Enabled: false,
 					},
 				},
 				ResourceAttributes: ResourceAttributesConfig{
@@ -160,7 +160,7 @@ func TestMetricsBuilderConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := loadMetricsBuilderConfig(t, tt.name)
-			diff := cmp.Diff(tt.want, cfg, cmpopts.IgnoreUnexported(ApacheBytesPerSecMetricConfig{}, ApacheConnectionsAsyncMetricConfig{}, ApacheCPULoadMetricConfig{}, ApacheCPUTimeMetricConfig{}, ApacheCurrentConnectionsMetricConfig{}, ApacheLoad1MetricConfig{}, ApacheLoad15MetricConfig{}, ApacheLoad5MetricConfig{}, ApacheRequestTimeMetricConfig{}, ApacheRequestsMetricConfig{}, ApacheRequestsPerSecMetricConfig{}, ApacheScoreboardMetricConfig{}, ApacheTrafficMetricConfig{}, ApacheUptimeMetricConfig{}, ApacheWorkersMetricConfig{}, ApacheWorkersMaxMetricConfig{}, ResourceAttributeConfig{}))
+			diff := cmp.Diff(tt.want, cfg, cmpopts.IgnoreUnexported(ApacheBytesPerSecMetricConfig{}, ApacheConnectionsAsyncMetricConfig{}, ApacheCPULoadMetricConfig{}, ApacheCPUTimeMetricConfig{}, ApacheCurrentConnectionsMetricConfig{}, ApacheLoad1MetricConfig{}, ApacheLoad15MetricConfig{}, ApacheLoad5MetricConfig{}, ApacheRequestTimeMetricConfig{}, ApacheRequestsMetricConfig{}, ApacheRequestsPerSecMetricConfig{}, ApacheScoreboardMetricConfig{}, ApacheTrafficMetricConfig{}, ApacheUptimeMetricConfig{}, ApacheWorkerLimitMetricConfig{}, ApacheWorkersMetricConfig{}, ResourceAttributeConfig{}))
 			require.Emptyf(t, diff, "Config mismatch (-expected +actual):\n%s", diff)
 		})
 	}

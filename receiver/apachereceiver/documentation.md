@@ -145,6 +145,14 @@ The amount of time that the server has been running in seconds.
 | ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
 | s | Sum | Int | Cumulative | true | Development |
 
+### apache.worker.limit
+
+The maximum number of worker slots available on the server, derived from the length of the scoreboard.
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| {workers} | Gauge | Int | Development |
+
 ### apache.workers
 
 The number of workers currently attached to the HTTP server.
@@ -158,14 +166,6 @@ The number of workers currently attached to the HTTP server.
 | Name | Description | Values | Requirement Level | Semantic Convention |
 | ---- | ----------- | ------ | ----------------- | ------------------- |
 | state | The state of workers. | Str: ``busy``, ``idle`` | Recommended | - |
-
-### apache.workers.max
-
-The maximum number of worker slots available on the server, derived from the length of the scoreboard.
-
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| {workers} | Gauge | Int | Development |
 
 ## Resource Attributes
 

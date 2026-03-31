@@ -239,11 +239,11 @@ var MetricsInfo = metricsInfo{
 	ApacheUptime: metricInfo{
 		Name: "apache.uptime",
 	},
+	ApacheWorkerLimit: metricInfo{
+		Name: "apache.worker.limit",
+	},
 	ApacheWorkers: metricInfo{
 		Name: "apache.workers",
-	},
-	ApacheWorkersMax: metricInfo{
-		Name: "apache.workers.max",
 	},
 }
 
@@ -262,8 +262,8 @@ type metricsInfo struct {
 	ApacheScoreboard         metricInfo
 	ApacheTraffic            metricInfo
 	ApacheUptime             metricInfo
+	ApacheWorkerLimit        metricInfo
 	ApacheWorkers            metricInfo
-	ApacheWorkersMax         metricInfo
 }
 
 type metricInfo struct {
@@ -1104,6 +1104,56 @@ func newMetricApacheUptime(cfg ApacheUptimeMetricConfig) metricApacheUptime {
 	return m
 }
 
+type metricApacheWorkerLimit struct {
+	data     pmetric.Metric                // data buffer for generated metric.
+	config   ApacheWorkerLimitMetricConfig // metric config provided by user.
+	capacity int                           // max observed number of data points added to the metric.
+}
+
+// init fills apache.worker.limit metric with initial data.
+func (m *metricApacheWorkerLimit) init() {
+	m.data.SetName("apache.worker.limit")
+	m.data.SetDescription("The maximum number of worker slots available on the server, derived from the length of the scoreboard.")
+	m.data.SetUnit("{workers}")
+	m.data.SetEmptyGauge()
+}
+
+func (m *metricApacheWorkerLimit) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
+	if !m.config.Enabled {
+		return
+	}
+	dp := m.data.Gauge().DataPoints().AppendEmpty()
+	dp.SetStartTimestamp(start)
+	dp.SetTimestamp(ts)
+	dp.SetIntValue(val)
+}
+
+// updateCapacity saves max length of data point slices that will be used for the slice capacity.
+func (m *metricApacheWorkerLimit) updateCapacity() {
+	if m.data.Gauge().DataPoints().Len() > m.capacity {
+		m.capacity = m.data.Gauge().DataPoints().Len()
+	}
+}
+
+// emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
+func (m *metricApacheWorkerLimit) emit(metrics pmetric.MetricSlice) {
+	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
+		m.updateCapacity()
+		m.data.MoveTo(metrics.AppendEmpty())
+		m.init()
+	}
+}
+
+func newMetricApacheWorkerLimit(cfg ApacheWorkerLimitMetricConfig) metricApacheWorkerLimit {
+	m := metricApacheWorkerLimit{config: cfg}
+
+	if cfg.Enabled {
+		m.data = pmetric.NewMetric()
+		m.init()
+	}
+	return m
+}
+
 type metricApacheWorkers struct {
 	data          pmetric.Metric            // data buffer for generated metric.
 	config        ApacheWorkersMetricConfig // metric config provided by user.
@@ -1195,56 +1245,6 @@ func newMetricApacheWorkers(cfg ApacheWorkersMetricConfig) metricApacheWorkers {
 	return m
 }
 
-type metricApacheWorkersMax struct {
-	data     pmetric.Metric               // data buffer for generated metric.
-	config   ApacheWorkersMaxMetricConfig // metric config provided by user.
-	capacity int                          // max observed number of data points added to the metric.
-}
-
-// init fills apache.workers.max metric with initial data.
-func (m *metricApacheWorkersMax) init() {
-	m.data.SetName("apache.workers.max")
-	m.data.SetDescription("The maximum number of worker slots available on the server, derived from the length of the scoreboard.")
-	m.data.SetUnit("{workers}")
-	m.data.SetEmptyGauge()
-}
-
-func (m *metricApacheWorkersMax) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64) {
-	if !m.config.Enabled {
-		return
-	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
-	dp.SetStartTimestamp(start)
-	dp.SetTimestamp(ts)
-	dp.SetIntValue(val)
-}
-
-// updateCapacity saves max length of data point slices that will be used for the slice capacity.
-func (m *metricApacheWorkersMax) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
-	}
-}
-
-// emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
-func (m *metricApacheWorkersMax) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
-		m.updateCapacity()
-		m.data.MoveTo(metrics.AppendEmpty())
-		m.init()
-	}
-}
-
-func newMetricApacheWorkersMax(cfg ApacheWorkersMaxMetricConfig) metricApacheWorkersMax {
-	m := metricApacheWorkersMax{config: cfg}
-
-	if cfg.Enabled {
-		m.data = pmetric.NewMetric()
-		m.init()
-	}
-	return m
-}
-
 // MetricsBuilder provides an interface for scrapers to report metrics while taking care of all the transformations
 // required to produce metric representation defined in metadata and user config.
 type MetricsBuilder struct {
@@ -1269,8 +1269,8 @@ type MetricsBuilder struct {
 	metricApacheScoreboard         metricApacheScoreboard
 	metricApacheTraffic            metricApacheTraffic
 	metricApacheUptime             metricApacheUptime
+	metricApacheWorkerLimit        metricApacheWorkerLimit
 	metricApacheWorkers            metricApacheWorkers
-	metricApacheWorkersMax         metricApacheWorkersMax
 }
 
 // MetricBuilderOption applies changes to default metrics builder.
@@ -1310,8 +1310,8 @@ func NewMetricsBuilder(mbc MetricsBuilderConfig, settings receiver.Settings, opt
 		metricApacheScoreboard:         newMetricApacheScoreboard(mbc.Metrics.ApacheScoreboard),
 		metricApacheTraffic:            newMetricApacheTraffic(mbc.Metrics.ApacheTraffic),
 		metricApacheUptime:             newMetricApacheUptime(mbc.Metrics.ApacheUptime),
+		metricApacheWorkerLimit:        newMetricApacheWorkerLimit(mbc.Metrics.ApacheWorkerLimit),
 		metricApacheWorkers:            newMetricApacheWorkers(mbc.Metrics.ApacheWorkers),
-		metricApacheWorkersMax:         newMetricApacheWorkersMax(mbc.Metrics.ApacheWorkersMax),
 		resourceAttributeIncludeFilter: make(map[string]filter.Filter),
 		resourceAttributeExcludeFilter: make(map[string]filter.Filter),
 	}
@@ -1410,8 +1410,8 @@ func (mb *MetricsBuilder) EmitForResource(options ...ResourceMetricsOption) {
 	mb.metricApacheScoreboard.emit(ils.Metrics())
 	mb.metricApacheTraffic.emit(ils.Metrics())
 	mb.metricApacheUptime.emit(ils.Metrics())
+	mb.metricApacheWorkerLimit.emit(ils.Metrics())
 	mb.metricApacheWorkers.emit(ils.Metrics())
-	mb.metricApacheWorkersMax.emit(ils.Metrics())
 
 	for _, op := range options {
 		op.apply(rm)
@@ -1573,6 +1573,11 @@ func (mb *MetricsBuilder) RecordApacheUptimeDataPoint(ts pcommon.Timestamp, inpu
 	return nil
 }
 
+// RecordApacheWorkerLimitDataPoint adds a data point to apache.worker.limit metric.
+func (mb *MetricsBuilder) RecordApacheWorkerLimitDataPoint(ts pcommon.Timestamp, val int64) {
+	mb.metricApacheWorkerLimit.recordDataPoint(mb.startTime, ts, val)
+}
+
 // RecordApacheWorkersDataPoint adds a data point to apache.workers metric.
 func (mb *MetricsBuilder) RecordApacheWorkersDataPoint(ts pcommon.Timestamp, inputVal string, workersStateAttributeValue AttributeWorkersState) error {
 	val, err := strconv.ParseInt(inputVal, 10, 64)
@@ -1581,11 +1586,6 @@ func (mb *MetricsBuilder) RecordApacheWorkersDataPoint(ts pcommon.Timestamp, inp
 	}
 	mb.metricApacheWorkers.recordDataPoint(mb.startTime, ts, val, workersStateAttributeValue.String())
 	return nil
-}
-
-// RecordApacheWorkersMaxDataPoint adds a data point to apache.workers.max metric.
-func (mb *MetricsBuilder) RecordApacheWorkersMaxDataPoint(ts pcommon.Timestamp, val int64) {
-	mb.metricApacheWorkersMax.recordDataPoint(mb.startTime, ts, val)
 }
 
 // Reset resets metrics builder to its initial state. It should be used when external metrics source is restarted,

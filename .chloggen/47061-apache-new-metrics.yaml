@@ -17,7 +17,7 @@ issues: [47061]
 # Use pipe (|) for multiline entries.
 subtext: |
   Added three new metrics to the Apache receiver:
-  - `apache.workers.max`: The maximum number of worker slots, derived from the scoreboard length.
+  - `apache.worker.limit`: The maximum number of worker slots, derived from the scoreboard length.
   - `apache.bytes_per_sec`: Average bytes served per second, from the `BytesPerSec` field.
   - `apache.requests_per_sec`: Average requests served per second, from the `ReqPerSec` field.
 

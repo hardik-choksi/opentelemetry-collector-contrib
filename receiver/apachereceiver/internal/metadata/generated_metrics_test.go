@@ -147,14 +147,14 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
+			mb.RecordApacheWorkerLimitDataPoint(ts, 1)
+
+			defaultMetricsCount++
+			allMetricsCount++
 			mb.RecordApacheWorkersDataPoint(ts, "1", AttributeWorkersStateBusy)
 			if tt.name == "reaggregate_set" {
 				mb.RecordApacheWorkersDataPoint(ts, "3", AttributeWorkersStateIdle)
 			}
-
-			defaultMetricsCount++
-			allMetricsCount++
-			mb.RecordApacheWorkersMaxDataPoint(ts, 1)
 
 			rb := mb.NewResourceBuilder()
 			rb.SetApacheServerName("apache.server.name-val")
@@ -468,6 +468,18 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
+				case "apache.worker.limit":
+					assert.False(t, validatedMetrics["apache.worker.limit"], "Found a duplicate in the metrics slice: apache.worker.limit")
+					validatedMetrics["apache.worker.limit"] = true
+					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
+					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
+					assert.Equal(t, "The maximum number of worker slots available on the server, derived from the length of the scoreboard.", mi.Description())
+					assert.Equal(t, "{workers}", mi.Unit())
+					dp := mi.Gauge().DataPoints().At(0)
+					assert.Equal(t, start, dp.StartTimestamp())
+					assert.Equal(t, ts, dp.Timestamp())
+					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
+					assert.Equal(t, int64(1), dp.IntValue())
 				case "apache.workers":
 					if tt.name != "reaggregate_set" {
 						assert.False(t, validatedMetrics["apache.workers"], "Found a duplicate in the metrics slice: apache.workers")
@@ -512,18 +524,6 @@ func TestMetricsBuilder(t *testing.T) {
 						_, ok := dp.Attributes().Get("state")
 						assert.False(t, ok)
 					}
-				case "apache.workers.max":
-					assert.False(t, validatedMetrics["apache.workers.max"], "Found a duplicate in the metrics slice: apache.workers.max")
-					validatedMetrics["apache.workers.max"] = true
-					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
-					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
-					assert.Equal(t, "The maximum number of worker slots available on the server, derived from the length of the scoreboard.", mi.Description())
-					assert.Equal(t, "{workers}", mi.Unit())
-					dp := mi.Gauge().DataPoints().At(0)
-					assert.Equal(t, start, dp.StartTimestamp())
-					assert.Equal(t, ts, dp.Timestamp())
-					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
-					assert.Equal(t, int64(1), dp.IntValue())
 				}
 			}
 		})

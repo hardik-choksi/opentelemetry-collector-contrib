@@ -152,6 +152,13 @@ $defs:
           enabled:
             type: boolean
             default: true
+      apache.worker.limit:
+        description: "ApacheWorkerLimitMetricConfig provides config for the apache.worker.limit metric."
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            default: true
       apache.workers:
         description: "ApacheWorkersMetricConfig provides config for the apache.workers metric."
         type: object
@@ -175,13 +182,6 @@ $defs:
                 - "state"
             default:
               - "state"
-      apache.worker.limit:
-        description: "ApacheWorkersMaxMetricConfig provides config for the apache.worker.limit metric."
-        type: object
-        properties:
-          enabled:
-            type: boolean
-            default: true
   resource_attributes_config:
     description: ResourceAttributesConfig provides config for apache resource attributes.
     type: object

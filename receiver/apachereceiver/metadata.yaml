@@ -220,6 +220,14 @@ metrics:
       monotonic: true
       aggregation_temporality: cumulative
     attributes: []
+  apache.worker.limit:
+    enabled: true
+    stability: development
+    description: The maximum number of worker slots available on the server, derived from the length of the scoreboard.
+    unit: "{workers}"
+    gauge:
+      value_type: int
+    attributes: []
   apache.workers:
     enabled: true
     stability: development
@@ -231,11 +239,3 @@ metrics:
       monotonic: false
       aggregation_temporality: cumulative
     attributes: [workers_state]
-  apache.workers.max:
-    enabled: true
-    stability: development
-    description: The maximum number of worker slots available on the server, derived from the length of the scoreboard.
-    unit: "{workers}"
-    gauge:
-      value_type: int
-    attributes: []

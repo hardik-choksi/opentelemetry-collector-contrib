@@ -134,7 +134,7 @@ func (r *apacheScraper) scrape(context.Context) (pmetric.Metrics, error) {
 			for state, score := range scoreboardMap {
 				r.mb.RecordApacheScoreboardDataPoint(now, score, state)
 			}
-			r.mb.RecordApacheWorkersMaxDataPoint(now, int64(len(metricValue)))
+			r.mb.RecordApacheWorkerLimitDataPoint(now, int64(len(metricValue)))
 		}
 	}
 

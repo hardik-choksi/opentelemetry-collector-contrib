@@ -32,11 +32,11 @@ all_set:
       enabled: true
     apache.uptime:
       enabled: true
+    apache.worker.limit:
+      enabled: true
     apache.workers:
       enabled: true
       attributes: ["state"]
-    apache.workers.max:
-      enabled: true
   resource_attributes:
     apache.server.name:
       enabled: true
@@ -75,11 +75,11 @@ reaggregate_set:
       enabled: true
     apache.uptime:
       enabled: true
+    apache.worker.limit:
+      enabled: true
     apache.workers:
       enabled: true
       attributes: []
-    apache.workers.max:
-      enabled: true
   resource_attributes:
     apache.server.name:
       enabled: true
@@ -118,11 +118,11 @@ none_set:
       enabled: false
     apache.uptime:
       enabled: false
+    apache.worker.limit:
+      enabled: false
     apache.workers:
       enabled: false
       attributes: ["state"]
-    apache.workers.max:
-      enabled: false
   resource_attributes:
     apache.server.name:
       enabled: false
