@@ -175,8 +175,8 @@ $defs:
                 - "state"
             default:
               - "state"
-      apache.workers.max:
-        description: "ApacheWorkersMaxMetricConfig provides config for the apache.workers.max metric."
+      apache.worker.limit:
+        description: "ApacheWorkersMaxMetricConfig provides config for the apache.worker.limit metric."
         type: object
         properties:
           enabled:
