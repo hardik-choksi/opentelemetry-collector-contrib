@@ -82,10 +82,6 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordApacheBytesPerSecDataPoint(ts, "1")
-
-			defaultMetricsCount++
-			allMetricsCount++
 			mb.RecordApacheConnectionsAsyncDataPoint(ts, "1", AttributeConnectionStateWriting)
 			if tt.name == "reaggregate_set" {
 				mb.RecordApacheConnectionsAsyncDataPoint(ts, "3", AttributeConnectionStateKeepalive)
@@ -124,11 +120,15 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordApacheRequestsDataPoint(ts, "1")
+			mb.RecordApacheRequestRateCountDataPoint(ts, "1")
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordApacheRequestsPerSecDataPoint(ts, "1")
+			mb.RecordApacheRequestRateIoTransmittedDataPoint(ts, "1")
+
+			defaultMetricsCount++
+			allMetricsCount++
+			mb.RecordApacheRequestsDataPoint(ts, "1")
 
 			defaultMetricsCount++
 			allMetricsCount++
@@ -193,18 +193,6 @@ func TestMetricsBuilder(t *testing.T) {
 			validatedMetrics := make(map[string]bool)
 			for _, mi := range allMetricsList {
 				switch mi.Name() {
-				case "apache.bytes_per_sec":
-					assert.False(t, validatedMetrics["apache.bytes_per_sec"], "Found a duplicate in the metrics slice: apache.bytes_per_sec")
-					validatedMetrics["apache.bytes_per_sec"] = true
-					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
-					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
-					assert.Equal(t, "The average number of bytes served per second since the server was started.", mi.Description())
-					assert.Equal(t, "By/s", mi.Unit())
-					dp := mi.Gauge().DataPoints().At(0)
-					assert.Equal(t, start, dp.StartTimestamp())
-					assert.Equal(t, ts, dp.Timestamp())
-					assert.Equal(t, pmetric.NumberDataPointValueTypeDouble, dp.ValueType())
-					assert.InDelta(t, float64(1), dp.DoubleValue(), 0.01)
 				case "apache.connections.async":
 					if tt.name != "reaggregate_set" {
 						assert.False(t, validatedMetrics["apache.connections.async"], "Found a duplicate in the metrics slice: apache.connections.async")
@@ -370,6 +358,30 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
+				case "apache.request_rate.count":
+					assert.False(t, validatedMetrics["apache.request_rate.count"], "Found a duplicate in the metrics slice: apache.request_rate.count")
+					validatedMetrics["apache.request_rate.count"] = true
+					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
+					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
+					assert.Equal(t, "The average number of requests served per second since the server was started.", mi.Description())
+					assert.Equal(t, "{requests}/s", mi.Unit())
+					dp := mi.Gauge().DataPoints().At(0)
+					assert.Equal(t, start, dp.StartTimestamp())
+					assert.Equal(t, ts, dp.Timestamp())
+					assert.Equal(t, pmetric.NumberDataPointValueTypeDouble, dp.ValueType())
+					assert.InDelta(t, float64(1), dp.DoubleValue(), 0.01)
+				case "apache.request_rate.io.transmitted":
+					assert.False(t, validatedMetrics["apache.request_rate.io.transmitted"], "Found a duplicate in the metrics slice: apache.request_rate.io.transmitted")
+					validatedMetrics["apache.request_rate.io.transmitted"] = true
+					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
+					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
+					assert.Equal(t, "The average number of bytes served per second since the server was started.", mi.Description())
+					assert.Equal(t, "By/s", mi.Unit())
+					dp := mi.Gauge().DataPoints().At(0)
+					assert.Equal(t, start, dp.StartTimestamp())
+					assert.Equal(t, ts, dp.Timestamp())
+					assert.Equal(t, pmetric.NumberDataPointValueTypeDouble, dp.ValueType())
+					assert.InDelta(t, float64(1), dp.DoubleValue(), 0.01)
 				case "apache.requests":
 					assert.False(t, validatedMetrics["apache.requests"], "Found a duplicate in the metrics slice: apache.requests")
 					validatedMetrics["apache.requests"] = true
@@ -384,18 +396,6 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
-				case "apache.requests_per_sec":
-					assert.False(t, validatedMetrics["apache.requests_per_sec"], "Found a duplicate in the metrics slice: apache.requests_per_sec")
-					validatedMetrics["apache.requests_per_sec"] = true
-					assert.Equal(t, pmetric.MetricTypeGauge, mi.Type())
-					assert.Equal(t, 1, mi.Gauge().DataPoints().Len())
-					assert.Equal(t, "The average number of requests served per second since the server was started.", mi.Description())
-					assert.Equal(t, "{requests}/s", mi.Unit())
-					dp := mi.Gauge().DataPoints().At(0)
-					assert.Equal(t, start, dp.StartTimestamp())
-					assert.Equal(t, ts, dp.Timestamp())
-					assert.Equal(t, pmetric.NumberDataPointValueTypeDouble, dp.ValueType())
-					assert.InDelta(t, float64(1), dp.DoubleValue(), 0.01)
 				case "apache.scoreboard":
 					if tt.name != "reaggregate_set" {
 						assert.False(t, validatedMetrics["apache.scoreboard"], "Found a duplicate in the metrics slice: apache.scoreboard")

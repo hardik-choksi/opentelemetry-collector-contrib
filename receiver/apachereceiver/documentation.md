@@ -12,14 +12,6 @@ metrics:
     enabled: false
 ```
 
-### apache.bytes_per_sec
-
-The average number of bytes served per second since the server was started.
-
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| By/s | Gauge | Double | Development |
-
 ### apache.connections.async
 
 The number of connections in different asynchronous states reported by Apache's server-status.
@@ -97,6 +89,22 @@ Total time spent on handling requests.
 | ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
 | ms | Sum | Int | Cumulative | true | Development |
 
+### apache.request_rate.count
+
+The average number of requests served per second since the server was started.
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| {requests}/s | Gauge | Double | Development |
+
+### apache.request_rate.io.transmitted
+
+The average number of bytes served per second since the server was started.
+
+| Unit | Metric Type | Value Type | Stability |
+| ---- | ----------- | ---------- | --------- |
+| By/s | Gauge | Double | Development |
+
 ### apache.requests
 
 The number of requests serviced by the HTTP server per second.
@@ -104,14 +112,6 @@ The number of requests serviced by the HTTP server per second.
 | Unit | Metric Type | Value Type | Aggregation Temporality | Monotonic | Stability |
 | ---- | ----------- | ---------- | ----------------------- | --------- | --------- |
 | {requests} | Sum | Int | Cumulative | true | Development |
-
-### apache.requests_per_sec
-
-The average number of requests served per second since the server was started.
-
-| Unit | Metric Type | Value Type | Stability |
-| ---- | ----------- | ---------- | --------- |
-| {requests}/s | Gauge | Double | Development |
 
 ### apache.scoreboard
 

@@ -1,8 +1,6 @@
 default:
 all_set:
   metrics:
-    apache.bytes_per_sec:
-      enabled: true
     apache.connections.async:
       enabled: true
       attributes: ["connection_state"]
@@ -21,9 +19,11 @@ all_set:
       enabled: true
     apache.request.time:
       enabled: true
-    apache.requests:
+    apache.request_rate.count:
       enabled: true
-    apache.requests_per_sec:
+    apache.request_rate.io.transmitted:
+      enabled: true
+    apache.requests:
       enabled: true
     apache.scoreboard:
       enabled: true
@@ -44,8 +44,6 @@ all_set:
       enabled: true
 reaggregate_set:
   metrics:
-    apache.bytes_per_sec:
-      enabled: true
     apache.connections.async:
       enabled: true
       attributes: []
@@ -64,9 +62,11 @@ reaggregate_set:
       enabled: true
     apache.request.time:
       enabled: true
-    apache.requests:
+    apache.request_rate.count:
       enabled: true
-    apache.requests_per_sec:
+    apache.request_rate.io.transmitted:
+      enabled: true
+    apache.requests:
       enabled: true
     apache.scoreboard:
       enabled: true
@@ -87,8 +87,6 @@ reaggregate_set:
       enabled: true
 none_set:
   metrics:
-    apache.bytes_per_sec:
-      enabled: false
     apache.connections.async:
       enabled: false
       attributes: ["connection_state"]
@@ -107,9 +105,11 @@ none_set:
       enabled: false
     apache.request.time:
       enabled: false
-    apache.requests:
+    apache.request_rate.count:
       enabled: false
-    apache.requests_per_sec:
+    apache.request_rate.io.transmitted:
+      enabled: false
+    apache.requests:
       enabled: false
     apache.scoreboard:
       enabled: false

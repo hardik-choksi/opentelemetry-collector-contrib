@@ -18,8 +18,8 @@ issues: [47061]
 subtext: |
   Added three new metrics to the Apache receiver:
   - `apache.worker.limit`: The maximum number of worker slots, derived from the scoreboard length.
-  - `apache.bytes_per_sec`: Average bytes served per second, from the `BytesPerSec` field.
-  - `apache.requests_per_sec`: Average requests served per second, from the `ReqPerSec` field.
+  - `apache.request_rate.io.transmitted`: Average bytes served per second, from the `BytesPerSec` field.
+  - `apache.request_rate.count`: Average requests served per second, from the `ReqPerSec` field.
 
 # If your change doesn't affect end users or the exported elements of any package,
 # you should instead start your pull request title with [chore] or use the "Skip Changelog" label.

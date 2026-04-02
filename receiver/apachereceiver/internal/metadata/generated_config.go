@@ -9,26 +9,6 @@ import (
 	"go.opentelemetry.io/collector/filter"
 )
 
-// ApacheBytesPerSecMetricConfig provides config for the apache.bytes_per_sec metric.
-type ApacheBytesPerSecMetricConfig struct {
-	Enabled          bool `mapstructure:"enabled"`
-	enabledSetByUser bool
-}
-
-func (ms *ApacheBytesPerSecMetricConfig) Unmarshal(parser *confmap.Conf) error {
-	if parser == nil {
-		return nil
-	}
-
-	err := parser.Unmarshal(ms)
-	if err != nil {
-		return err
-	}
-
-	ms.enabledSetByUser = parser.IsSet("enabled")
-	return nil
-}
-
 // ApacheConnectionsAsyncMetricAttributeKey specifies the key of an attribute for the apache.connections.async metric.
 type ApacheConnectionsAsyncMetricAttributeKey string
 
@@ -246,13 +226,13 @@ func (ms *ApacheRequestTimeMetricConfig) Unmarshal(parser *confmap.Conf) error {
 	return nil
 }
 
-// ApacheRequestsMetricConfig provides config for the apache.requests metric.
-type ApacheRequestsMetricConfig struct {
+// ApacheRequestRateCountMetricConfig provides config for the apache.request_rate.count metric.
+type ApacheRequestRateCountMetricConfig struct {
 	Enabled          bool `mapstructure:"enabled"`
 	enabledSetByUser bool
 }
 
-func (ms *ApacheRequestsMetricConfig) Unmarshal(parser *confmap.Conf) error {
+func (ms *ApacheRequestRateCountMetricConfig) Unmarshal(parser *confmap.Conf) error {
 	if parser == nil {
 		return nil
 	}
@@ -266,13 +246,33 @@ func (ms *ApacheRequestsMetricConfig) Unmarshal(parser *confmap.Conf) error {
 	return nil
 }
 
-// ApacheRequestsPerSecMetricConfig provides config for the apache.requests_per_sec metric.
-type ApacheRequestsPerSecMetricConfig struct {
+// ApacheRequestRateIoTransmittedMetricConfig provides config for the apache.request_rate.io.transmitted metric.
+type ApacheRequestRateIoTransmittedMetricConfig struct {
 	Enabled          bool `mapstructure:"enabled"`
 	enabledSetByUser bool
 }
 
-func (ms *ApacheRequestsPerSecMetricConfig) Unmarshal(parser *confmap.Conf) error {
+func (ms *ApacheRequestRateIoTransmittedMetricConfig) Unmarshal(parser *confmap.Conf) error {
+	if parser == nil {
+		return nil
+	}
+
+	err := parser.Unmarshal(ms)
+	if err != nil {
+		return err
+	}
+
+	ms.enabledSetByUser = parser.IsSet("enabled")
+	return nil
+}
+
+// ApacheRequestsMetricConfig provides config for the apache.requests metric.
+type ApacheRequestsMetricConfig struct {
+	Enabled          bool `mapstructure:"enabled"`
+	enabledSetByUser bool
+}
+
+func (ms *ApacheRequestsMetricConfig) Unmarshal(parser *confmap.Conf) error {
 	if parser == nil {
 		return nil
 	}
@@ -444,29 +444,26 @@ func (ms *ApacheWorkersMetricConfig) Validate() error {
 
 // MetricsConfig provides config for apache metrics.
 type MetricsConfig struct {
-	ApacheBytesPerSec        ApacheBytesPerSecMetricConfig        `mapstructure:"apache.bytes_per_sec"`
-	ApacheConnectionsAsync   ApacheConnectionsAsyncMetricConfig   `mapstructure:"apache.connections.async"`
-	ApacheCPULoad            ApacheCPULoadMetricConfig            `mapstructure:"apache.cpu.load"`
-	ApacheCPUTime            ApacheCPUTimeMetricConfig            `mapstructure:"apache.cpu.time"`
-	ApacheCurrentConnections ApacheCurrentConnectionsMetricConfig `mapstructure:"apache.current_connections"`
-	ApacheLoad1              ApacheLoad1MetricConfig              `mapstructure:"apache.load.1"`
-	ApacheLoad15             ApacheLoad15MetricConfig             `mapstructure:"apache.load.15"`
-	ApacheLoad5              ApacheLoad5MetricConfig              `mapstructure:"apache.load.5"`
-	ApacheRequestTime        ApacheRequestTimeMetricConfig        `mapstructure:"apache.request.time"`
-	ApacheRequests           ApacheRequestsMetricConfig           `mapstructure:"apache.requests"`
-	ApacheRequestsPerSec     ApacheRequestsPerSecMetricConfig     `mapstructure:"apache.requests_per_sec"`
-	ApacheScoreboard         ApacheScoreboardMetricConfig         `mapstructure:"apache.scoreboard"`
-	ApacheTraffic            ApacheTrafficMetricConfig            `mapstructure:"apache.traffic"`
-	ApacheUptime             ApacheUptimeMetricConfig             `mapstructure:"apache.uptime"`
-	ApacheWorkerLimit        ApacheWorkerLimitMetricConfig        `mapstructure:"apache.worker.limit"`
-	ApacheWorkers            ApacheWorkersMetricConfig            `mapstructure:"apache.workers"`
+	ApacheConnectionsAsync         ApacheConnectionsAsyncMetricConfig         `mapstructure:"apache.connections.async"`
+	ApacheCPULoad                  ApacheCPULoadMetricConfig                  `mapstructure:"apache.cpu.load"`
+	ApacheCPUTime                  ApacheCPUTimeMetricConfig                  `mapstructure:"apache.cpu.time"`
+	ApacheCurrentConnections       ApacheCurrentConnectionsMetricConfig       `mapstructure:"apache.current_connections"`
+	ApacheLoad1                    ApacheLoad1MetricConfig                    `mapstructure:"apache.load.1"`
+	ApacheLoad15                   ApacheLoad15MetricConfig                   `mapstructure:"apache.load.15"`
+	ApacheLoad5                    ApacheLoad5MetricConfig                    `mapstructure:"apache.load.5"`
+	ApacheRequestTime              ApacheRequestTimeMetricConfig              `mapstructure:"apache.request.time"`
+	ApacheRequestRateCount         ApacheRequestRateCountMetricConfig         `mapstructure:"apache.request_rate.count"`
+	ApacheRequestRateIoTransmitted ApacheRequestRateIoTransmittedMetricConfig `mapstructure:"apache.request_rate.io.transmitted"`
+	ApacheRequests                 ApacheRequestsMetricConfig                 `mapstructure:"apache.requests"`
+	ApacheScoreboard               ApacheScoreboardMetricConfig               `mapstructure:"apache.scoreboard"`
+	ApacheTraffic                  ApacheTrafficMetricConfig                  `mapstructure:"apache.traffic"`
+	ApacheUptime                   ApacheUptimeMetricConfig                   `mapstructure:"apache.uptime"`
+	ApacheWorkerLimit              ApacheWorkerLimitMetricConfig              `mapstructure:"apache.worker.limit"`
+	ApacheWorkers                  ApacheWorkersMetricConfig                  `mapstructure:"apache.workers"`
 }
 
 func DefaultMetricsConfig() MetricsConfig {
 	return MetricsConfig{
-		ApacheBytesPerSec: ApacheBytesPerSecMetricConfig{
-			Enabled: true,
-		},
 		ApacheConnectionsAsync: ApacheConnectionsAsyncMetricConfig{
 			Enabled:             true,
 			AggregationStrategy: AggregationStrategyAvg,
@@ -495,10 +492,13 @@ func DefaultMetricsConfig() MetricsConfig {
 		ApacheRequestTime: ApacheRequestTimeMetricConfig{
 			Enabled: true,
 		},
-		ApacheRequests: ApacheRequestsMetricConfig{
+		ApacheRequestRateCount: ApacheRequestRateCountMetricConfig{
 			Enabled: true,
 		},
-		ApacheRequestsPerSec: ApacheRequestsPerSecMetricConfig{
+		ApacheRequestRateIoTransmitted: ApacheRequestRateIoTransmittedMetricConfig{
+			Enabled: true,
+		},
+		ApacheRequests: ApacheRequestsMetricConfig{
 			Enabled: true,
 		},
 		ApacheScoreboard: ApacheScoreboardMetricConfig{

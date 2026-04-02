@@ -126,9 +126,9 @@ func (r *apacheScraper) scrape(context.Context) (pmetric.Metrics, error) {
 		case "Total Duration":
 			addPartialIfError(errs, r.mb.RecordApacheRequestTimeDataPoint(now, metricValue))
 		case "BytesPerSec":
-			addPartialIfError(errs, r.mb.RecordApacheBytesPerSecDataPoint(now, metricValue))
+			addPartialIfError(errs, r.mb.RecordApacheRequestRateIoTransmittedDataPoint(now, metricValue))
 		case "ReqPerSec":
-			addPartialIfError(errs, r.mb.RecordApacheRequestsPerSecDataPoint(now, metricValue))
+			addPartialIfError(errs, r.mb.RecordApacheRequestRateCountDataPoint(now, metricValue))
 		case "Scoreboard":
 			scoreboardMap := parseScoreboard(metricValue)
 			for state, score := range scoreboardMap {

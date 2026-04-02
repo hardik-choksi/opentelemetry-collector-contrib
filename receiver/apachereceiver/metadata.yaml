@@ -78,15 +78,6 @@ attributes:
       - idle
 
 metrics:
-  apache.bytes_per_sec:
-    enabled: true
-    stability: development
-    description: The average number of bytes served per second since the server was started.
-    unit: By/s
-    gauge:
-      value_type: double
-      input_type: string
-    attributes: []
   apache.connections.async:
     enabled: true
     stability: development
@@ -165,6 +156,24 @@ metrics:
       monotonic: true
       aggregation_temporality: cumulative
     attributes: []
+  apache.request_rate.count:
+    enabled: true
+    stability: development
+    description: The average number of requests served per second since the server was started.
+    unit: "{requests}/s"
+    gauge:
+      value_type: double
+      input_type: string
+    attributes: []
+  apache.request_rate.io.transmitted:
+    enabled: true
+    stability: development
+    description: The average number of bytes served per second since the server was started.
+    unit: By/s
+    gauge:
+      value_type: double
+      input_type: string
+    attributes: []
   apache.requests:
     enabled: true
     stability: development
@@ -175,15 +184,6 @@ metrics:
       input_type: string
       monotonic: true
       aggregation_temporality: cumulative
-    attributes: []
-  apache.requests_per_sec:
-    enabled: true
-    stability: development
-    description: The average number of requests served per second since the server was started.
-    unit: "{requests}/s"
-    gauge:
-      value_type: double
-      input_type: string
     attributes: []
   apache.scoreboard:
     enabled: true
